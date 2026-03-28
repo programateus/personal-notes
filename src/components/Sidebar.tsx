@@ -59,7 +59,7 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
         <button
           onClick={handleOpenFolder}
           title="Abrir pasta"
-          className="rounded p-1 text-base-content/55
+          className="cursor-pointer rounded p-1 text-base-content/55
            hover:bg-base-content/10 hover:text-base-content"
         >
           <svg
