@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+@keyframes loading-slide {
+  0% { transform: translateX(-250%); }
+  100% { transform: translateX(500%); }
+}
+
+.loading-bar {
+  animation: loading-slide 1.2s ease-in-out infinite;
+}
