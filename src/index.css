@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@milkdown/crepe/theme/common/style.css";
 @plugin "daisyui";
 
 @plugin "daisyui/theme" {
@@ -61,8 +62,42 @@
 }
 
 /* ══════════════════════════════════════════════════════
-   Animations
+   Milkdown — mapeamento para o tema DaisyUI
    ══════════════════════════════════════════════════════ */
+.milkdown {
+  width: 100%;
+  min-height: 100%;
+
+  --crepe-color-background: var(--color-base-100);
+  --crepe-color-on-background: var(--color-base-content);
+  --crepe-color-surface: var(--color-base-200);
+  --crepe-color-surface-low: var(--color-neutral);
+  --crepe-color-on-surface: var(--color-base-content);
+  --crepe-color-on-surface-variant: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+  --crepe-color-outline: color-mix(in oklch, var(--color-base-content) 20%, transparent);
+  --crepe-color-primary: var(--color-primary);
+  --crepe-color-secondary: var(--color-secondary);
+  --crepe-color-on-secondary: var(--color-secondary-content);
+  --crepe-color-inverse: var(--color-base-content);
+  --crepe-color-on-inverse: var(--color-base-100);
+  --crepe-color-inline-code: var(--color-accent);
+  --crepe-color-error: var(--color-error);
+  --crepe-color-hover: color-mix(in oklch, var(--color-base-content) 6%, transparent);
+  --crepe-color-selected: color-mix(in oklch, var(--color-primary) 20%, var(--color-base-100));
+  --crepe-color-inline-area: color-mix(in oklch, var(--color-primary) 12%, var(--color-neutral));
+
+  --crepe-font-title: Georgia, Cambria, "Times New Roman", Times, serif;
+  --crepe-font-default: "Open Sans", Arial, Helvetica, sans-serif;
+  --crepe-font-code: "Fira Code", Menlo, Monaco, "Courier New", Courier, monospace;
+
+  --crepe-shadow-1:
+    0px 1px 2px 0px color-mix(in oklch, var(--color-base-content) 15%, transparent),
+    0px 1px 3px 1px color-mix(in oklch, var(--color-base-content) 8%, transparent);
+  --crepe-shadow-2:
+    0px 1px 2px 0px color-mix(in oklch, var(--color-base-content) 15%, transparent),
+    0px 2px 6px 2px color-mix(in oklch, var(--color-base-content) 8%, transparent);
+}
+
 @keyframes loading-slide {
   0% {
     transform: translateX(-250%);
