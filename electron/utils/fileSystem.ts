@@ -22,7 +22,7 @@ export async function readDir(dirPath: string): Promise<FileNode[]> {
       name: entry.name,
       path: path.join(dirPath, entry.name),
       type: entry.isDirectory() ? "directory" : "file",
-    }))
+    })),
   );
 }
 

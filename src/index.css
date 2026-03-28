@@ -1,8 +1,75 @@
 @import "tailwindcss";
+@plugin "daisyui";
 
+@plugin "daisyui/theme" {
+  name: "custom-dark";
+  default: false;
+  prefersdark: false;
+  color-scheme: dark;
+
+  --color-base-100: var(--color-gray-900);
+  --color-base-200: var(--color-gray-800);
+  --color-base-300: var(--color-black);
+  --color-base-content: var(--color-white);
+  --color-primary: var(--color-indigo-600);
+  --color-primary-content: var(--color-white);
+  --color-secondary: oklch(0.5672 0.238518 260.5437);
+  --color-secondary-content: oklch(98% 0.01 200);
+  --color-accent: oklch(65% 0.25 160);
+  --color-neutral: oklch(14.5% 0 0);
+  --color-neutral-content: oklch(98.5% 0 0);
+  --color-info: oklch(70% 0.2 220);
+  --color-info-content: oklch(98% 0.01 220);
+  --color-success: oklch(65% 0.25 160);
+  --color-success-content: oklch(98% 0.01 140);
+  --color-warning: oklch(80% 0.25 80);
+  --color-warning-content: oklch(20% 0.05 80);
+  --color-error: oklch(0.6045 0.1772 24.1);
+  --color-error-content: oklch(98% 0.01 30);
+
+  /* border radius */
+  --radius-selector: 1rem;
+  --radius-field: 0.25rem;
+  --radius-box: 0.5rem;
+
+  /* base sizes */
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --divider-m: 0rem;
+
+  /* border size */
+  --border: 1px;
+
+  /* effects */
+  --depth: 1;
+  --noise: 0;
+}
+
+@utility input {
+  @apply focus:outline-offset-0;
+  @apply focus-within:outline-offset-0;
+}
+
+@utility textarea {
+  @apply focus:outline-offset-0;
+  @apply focus-within:outline-offset-0;
+}
+
+@utility select {
+  @apply focus:outline-offset-0;
+  @apply focus-within:outline-offset-0;
+}
+
+/* ══════════════════════════════════════════════════════
+   Animations
+   ══════════════════════════════════════════════════════ */
 @keyframes loading-slide {
-  0% { transform: translateX(-250%); }
-  100% { transform: translateX(500%); }
+  0% {
+    transform: translateX(-250%);
+  }
+  100% {
+    transform: translateX(500%);
+  }
 }
 
 .loading-bar {

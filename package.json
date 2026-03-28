@@ -1,7 +1,7 @@
 {
   "name": "personal-notes",
-  "private": true,
   "version": "0.0.0",
+  "private": true,
   "type": "module",
   "main": "dist-electron/main.cjs",
   "scripts": {
@@ -18,9 +18,12 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
+    "clsx": "^2.1.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "tailwindcss": "^4.2.2"
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss": "^4.2.2",
+    "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.9.1",
@@ -31,6 +34,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "concurrently": "^9.2.1",
+    "daisyui": "^5.5.19",
     "electron": "^41.0.4",
     "electron-builder": "^26.8.1",
     "globals": "^17.4.0",

@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import { Sidebar } from './components/Sidebar'
+import { useState } from "react";
+import { Sidebar } from "./components/Sidebar";
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState<string | null>(null)
+  const [selectedFile, setSelectedFile] = useState<string | null>(null);
 
   return (
-    <div className="flex h-screen bg-neutral-900 text-neutral-100">
+    <div className="flex h-screen bg-base-100 text-base-content">
       <Sidebar onFileSelect={setSelectedFile} />
       <main className="flex flex-1 items-center justify-center">
         {selectedFile ? (
-          <p className="max-w-md break-all text-sm text-neutral-400">{selectedFile}</p>
+          <p className="max-w-md break-all text-sm text-base-content/55">{selectedFile}</p>
         ) : (
-          <p className="text-sm text-neutral-600">Selecione um arquivo para começar</p>
+          <p className="text-sm text-base-content/35">Selecione um arquivo para começar</p>
         )}
       </main>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
