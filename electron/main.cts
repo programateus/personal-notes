@@ -1,11 +1,18 @@
 import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { Worker } from "worker_threads";
+import fs from "fs/promises";
 
 ipcMain.handle("open-directory", async () => {
   const result = await dialog.showOpenDialog({ properties: ["openDirectory"] });
   return result.canceled ? null : result.filePaths[0];
 });
+
+ipcMain.handle("read-file", (_event, filePath: string) => fs.readFile(filePath, "utf-8"));
+
+ipcMain.handle("write-file", (_event, filePath: string, content: string) =>
+  fs.writeFile(filePath, content, "utf-8"),
+);
 
 ipcMain.handle("read-directory", (_event, dirPath: string) => {
   return new Promise((resolve, reject) => {

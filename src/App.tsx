@@ -1,18 +1,31 @@
-import { useState } from "react";
 import { Sidebar } from "./components/Sidebar";
-import { EditorWrapper } from "./components/Editor/EditorWrapper";
+import { TabBar } from "./components/Tabs/TabBar";
+import { EditorPanel } from "./components/Editor/EditorPanel";
+import { useTabManager } from "./hooks/useTabManager";
 
 function App() {
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const { tabs, activeTabId, openTab, closeTab, updateContent, setActiveTabId } = useTabManager();
 
   return (
     <div className="flex h-screen bg-base-100 text-base-content">
-      <Sidebar onFileSelect={setSelectedFile} />
+      <Sidebar onFileSelect={openTab} />
       <main className="flex flex-1 flex-col overflow-hidden">
-        {selectedFile ? (
-          <EditorWrapper />
+        {tabs.length > 0 ? (
+          <>
+            <TabBar
+              tabs={tabs}
+              activeTabId={activeTabId}
+              onSelect={setActiveTabId}
+              onClose={closeTab}
+            />
+            <EditorPanel
+              tabs={tabs}
+              activeTabId={activeTabId}
+              onContentChange={updateContent}
+            />
+          </>
         ) : (
-          <p className="text-sm text-base-content/35">Selecione um arquivo para começar</p>
+          <p className="m-auto text-sm text-base-content/35">Selecione um arquivo para começar</p>
         )}
       </main>
     </div>

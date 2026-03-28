@@ -12,6 +12,8 @@ declare global {
     electronAPI: {
       openDirectory: () => Promise<string | null>;
       readDirectory: (dirPath: string) => Promise<FileNode[]>;
+      readFile: (filePath: string) => Promise<string>;
+      writeFile: (filePath: string, content: string) => Promise<void>;
     };
   }
 }
