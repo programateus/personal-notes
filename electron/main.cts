@@ -14,6 +14,14 @@ ipcMain.handle("write-file", (_event, filePath: string, content: string) =>
   fs.writeFile(filePath, content, "utf-8"),
 );
 
+ipcMain.handle("rename-file", (_event, oldPath: string, newPath: string) =>
+  fs.rename(oldPath, newPath),
+);
+
+ipcMain.handle("delete-file", (_event, filePath: string) =>
+  fs.rm(filePath, { recursive: true }),
+);
+
 ipcMain.handle("read-directory", (_event, dirPath: string) => {
   return new Promise((resolve, reject) => {
     const worker = new Worker(path.join(__dirname, "workers/readDir.worker.cjs"), {

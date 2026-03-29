@@ -69,10 +69,9 @@ export const SlashMenu = forwardRef<SlashMenuRef, SlashMenuProps>(({ items, comm
                   onPointerEnter={() => setSelectedIndex(globalIndex)}
                   onPointerUp={() => command(item)}
                 >
-                  <span
-                    className="slash-menu-item-icon"
-                    dangerouslySetInnerHTML={{ __html: item.icon }}
-                  />
+                  <span className="slash-menu-item-icon">
+                    <item.icon />
+                  </span>
                   <span>{item.label}</span>
                 </li>
               );

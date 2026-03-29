@@ -14,6 +14,8 @@ declare global {
       readDirectory: (dirPath: string) => Promise<FileNode[]>;
       readFile: (filePath: string) => Promise<string>;
       writeFile: (filePath: string, content: string) => Promise<void>;
+      renameFile: (oldPath: string, newPath: string) => Promise<void>;
+      deleteFile: (filePath: string) => Promise<void>;
     };
   }
 }

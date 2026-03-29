@@ -13,6 +13,7 @@ interface SidebarProps {
 export function Sidebar({ onFileSelect }: SidebarProps) {
   const [files, setFiles] = useState<FileNode[]>([]);
   const [rootName, setRootName] = useState<string | null>(null);
+  const [rootPath, setRootPath] = useState<string | null>(null);
   const [loadingPaths, setLoadingPaths] = useState<Set<string>>(new Set());
   const { width: sidebarWidth, handleResizeStart } = useResizable(240);
 
@@ -37,6 +38,7 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
     stopLoading(dirPath);
 
     setRootName(dirPath.split(/[\\/]/).pop() ?? dirPath);
+    setRootPath(dirPath);
     setFiles(nodes);
   }
 
@@ -89,6 +91,7 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
               onFileSelect={onFileSelect}
               onExpand={handleExpand}
               loadingPaths={loadingPaths}
+              onRefresh={() => rootPath && handleExpand(rootPath)}
             />
           ))
         )}
