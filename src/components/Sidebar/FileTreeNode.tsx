@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useContextMenu } from "@/providers/ContextMenu/useContextMenu";
 import type { ContextMenuOption } from "@/providers/ContextMenu/types";
 import {
@@ -9,34 +9,39 @@ import {
 } from "@/components/ContextMenu/ContextMenuIcons";
 import { stripExtension } from "@/config/fileConfig";
 import type { FileNodeState } from "./types";
+import { RenameInput } from "./RenameInput";
 
 interface FileTreeNodeProps {
   node: FileNodeState;
   onFileSelect: (path: string) => void;
+  onNodeSelect: (node: FileNodeState) => void;
   onExpand: (path: string) => void;
   onStartRenaming: (node: FileNodeState) => void;
   onFinishRenaming: (node: FileNodeState, newName: string) => void;
   onCancelRenaming: (node: FileNodeState) => void;
   loadingPaths: Set<string>;
   onRefresh: () => void;
+  selectedPath?: string;
   depth?: number;
 }
 
 export const FileTreeNode = ({
   node,
   onFileSelect,
+  onNodeSelect,
   onExpand,
   onStartRenaming,
   onFinishRenaming,
   onCancelRenaming,
   loadingPaths,
   onRefresh,
+  selectedPath,
   depth = 0,
 }: FileTreeNodeProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { open: openContextMenu } = useContextMenu();
-  const cancelledRef = useRef(false);
   const paddingLeft = depth * 12 + 8;
+  const isSelected = node.path === selectedPath;
   const isLoading = loadingPaths.has(node.path);
 
   const buildOptions = (): ContextMenuOption[] => [
@@ -67,39 +72,19 @@ export const FileTreeNode = ({
     },
   ];
 
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    if (cancelledRef.current) {
-      cancelledRef.current = false;
-      onCancelRenaming(node);
-      return;
-    }
-    onFinishRenaming(node, e.currentTarget.value.trim());
+  const sharedProps = {
+    onContextMenu: (e: React.MouseEvent) => {
+      e.preventDefault();
+      openContextMenu(buildOptions(), e.clientX, e.clientY);
+    },
   };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter") {
-      e.currentTarget.blur();
-    }
-    if (e.key === "Escape") {
-      cancelledRef.current = true;
-      e.currentTarget.blur();
-    }
-  };
-
-  const renameInput = (indentLeft: number) => (
-    <input
-      autoFocus
-      type="text"
-      className="w-full rounded bg-base-100 px-2 py-1 text-sm text-base-content ring-1 ring-primary outline-none"
-      style={{ paddingLeft: indentLeft }}
-      defaultValue={stripExtension(node.name)}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-    />
-  );
 
   if (node.type === "directory") {
+    const hasRenamingChild = node.children?.some((c) => c.isRenaming) ?? false;
+    const effectiveIsOpen = isOpen || hasRenamingChild;
+
     const handleToggle = () => {
+      onNodeSelect(node);
       const opening = !isOpen;
       setIsOpen(opening);
       if (opening && node.children === undefined) onExpand(node.path);
@@ -108,35 +93,39 @@ export const FileTreeNode = ({
     return (
       <div>
         {node.isRenaming ? (
-          renameInput(paddingLeft + 16)
+          <RenameInput
+            paddingLeft={paddingLeft + 16}
+            defaultValue={node.name}
+            onFinish={(name) => onFinishRenaming(node, name)}
+            onCancel={() => onCancelRenaming(node)}
+          />
         ) : (
           <button
             onClick={handleToggle}
-            onContextMenu={(e) => {
-              e.preventDefault();
-              openContextMenu(buildOptions(), e.clientX, e.clientY);
-            }}
             style={{ paddingLeft }}
-            className="flex w-full items-center gap-1 rounded px-2 py-1
-             text-left text-sm text-base-content/55
-             hover:bg-base-content/10 hover:text-base-content"
+            className={`flex w-full items-center gap-1 rounded px-2 py-1
+             text-left text-sm hover:bg-base-content/10 hover:text-base-content
+             ${isSelected ? "bg-base-content/15 text-base-content" : "text-base-content/55"}`}
+            {...sharedProps}
           >
-            <span className="w-3 text-center text-xs">{isLoading ? "·" : isOpen ? "▾" : "▸"}</span>
+            <span className="w-3 text-center text-xs">{isLoading ? "·" : effectiveIsOpen ? "▾" : "▸"}</span>
             <span className="truncate">{stripExtension(node.name)}</span>
           </button>
         )}
-        {isOpen &&
+        {effectiveIsOpen &&
           node.children?.map((child) => (
             <FileTreeNode
               key={child.path}
-              node={child as FileNodeState}
+              node={child}
               onFileSelect={onFileSelect}
+              onNodeSelect={onNodeSelect}
               onExpand={onExpand}
               onStartRenaming={onStartRenaming}
               onFinishRenaming={onFinishRenaming}
               onCancelRenaming={onCancelRenaming}
               loadingPaths={loadingPaths}
               onRefresh={() => onExpand(node.path)}
+              selectedPath={selectedPath}
               depth={depth + 1}
             />
           ))}
@@ -147,18 +136,23 @@ export const FileTreeNode = ({
   return (
     <div>
       {node.isRenaming ? (
-        renameInput(paddingLeft + 16)
+        <RenameInput
+          paddingLeft={paddingLeft + 16}
+          defaultValue={node.name}
+          onFinish={(name) => onFinishRenaming(node, name)}
+          onCancel={() => onCancelRenaming(node)}
+        />
       ) : (
         <button
-          onClick={() => onFileSelect(node.path)}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            openContextMenu(buildOptions(), e.clientX, e.clientY);
+          onClick={() => {
+            onNodeSelect(node);
+            onFileSelect(node.path);
           }}
           style={{ paddingLeft: paddingLeft + 16 }}
-          className="flex w-full items-center gap-1 rounded px-2 py-1
-           text-left text-sm text-base-content/80
-           hover:bg-base-content/10 hover:text-base-content"
+          className={`flex w-full items-center gap-1 rounded px-2 py-1
+           text-left text-sm hover:bg-base-content/10 hover:text-base-content
+           ${isSelected ? "bg-base-content/15 text-base-content" : "text-base-content/80"}`}
+          {...sharedProps}
         >
           <span className="truncate">{stripExtension(node.name)}</span>
         </button>

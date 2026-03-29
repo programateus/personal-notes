@@ -1,6 +1,10 @@
 import type { FileNode, FileType } from "@/electron";
 
-export type FileNodeState = FileNode & { isRenaming?: boolean; isNewFile?: boolean };
+export type FileNodeState = Omit<FileNode, "children"> & {
+  isRenaming?: boolean;
+  isNewFile?: boolean;
+  children?: FileNodeState[];
+};
 
 export interface SidebarProps {
   onFileSelect: (path: string) => void;

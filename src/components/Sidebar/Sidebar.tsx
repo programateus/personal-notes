@@ -1,100 +1,32 @@
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import { RiFileAddLine, RiFolderAddLine } from "react-icons/ri";
 import { useResizable } from "@/hooks/useResizable";
-import type { FileType } from "@/electron";
-import { ensureExtension } from "@/config/fileConfig";
 
 import { FileTreeNode } from "./FileTreeNode";
-import { updateChildren } from "./updateChildren";
-import type { FileNodeState, SidebarProps, SidebarRef } from "./types";
+import { useSidebarState } from "./useSidebarState";
+import type { SidebarProps, SidebarRef } from "./types";
 
 export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
   ({ onFileSelect, onFileRename }, ref) => {
-    const [files, setFiles] = useState<FileNodeState[]>([]);
-    const [rootName, setRootName] = useState<string | null>(null);
-    const [rootPath, setRootPath] = useState<string | null>(null);
-    const [loadingPaths, setLoadingPaths] = useState<Set<string>>(new Set());
+    const {
+      files,
+      rootName,
+      rootPath,
+      loadingPaths,
+      selectedNode,
+      loadFolder,
+      addNewFileNode,
+      handleNodeSelect,
+      handleAddNewFile,
+      handleStartRenaming,
+      handleCancelRenaming,
+      handleFinishRenaming,
+      handleExpand,
+    } = useSidebarState(onFileSelect, onFileRename);
+
     const { width: sidebarWidth, handleResizeStart } = useResizable(240);
 
-    const startLoading = (p: string) => setLoadingPaths((prev) => new Set(prev).add(p));
-    const stopLoading = (p: string) =>
-      setLoadingPaths((prev) => {
-        const next = new Set(prev);
-        next.delete(p);
-        return next;
-      });
-
-    const loadFolder = async (dirPath: string) => {
-      startLoading(dirPath);
-      const nodes = await window.electronAPI.readDirectory(dirPath);
-      stopLoading(dirPath);
-      setRootName(dirPath.split(/[\\/]/).pop() ?? dirPath);
-      setRootPath(dirPath);
-      setFiles(nodes as FileNodeState[]);
-    };
-
-    const addNewFileNode = (type: FileType, path: string) => {
-      const newNode: FileNodeState = { name: "", path, type, isRenaming: true, isNewFile: true };
-      setFiles((prev) => [newNode, ...prev]);
-    };
-
     useImperativeHandle(ref, () => ({ loadFolder, addNewFileNode }));
-
-    const handleAddNewFile = (type: FileType) => {
-      if (!rootPath) return;
-      const sep = rootPath.includes("\\") ? "\\" : "/";
-      addNewFileNode(type, rootPath + sep);
-    };
-
-    const handleStartRenaming = (node: FileNodeState) => {
-      setFiles((prev) => prev.map((n) => (n.path === node.path ? { ...n, isRenaming: true } : n)));
-    };
-
-    const handleCancelRenaming = (node: FileNodeState) => {
-      if (!node.name) {
-        setFiles((prev) => prev.filter((n) => n.path !== node.path));
-      } else {
-        setFiles((prev) =>
-          prev.map((n) => (n.path === node.path ? { ...n, isRenaming: false } : n)),
-        );
-      }
-    };
-
-    const handleFinishRenaming = async (node: FileNodeState, newName: string) => {
-      if (!newName.trim()) {
-        handleCancelRenaming(node);
-        return;
-      }
-      const finalName = ensureExtension(newName);
-      const sep = node.path.includes("\\") ? "\\" : "/";
-      if (node.isNewFile) {
-        const newPath = node.path + finalName;
-        if (node.type === "directory") {
-          await window.electronAPI.createDirectory(newPath);
-        } else {
-          await window.electronAPI.writeFile(newPath, "");
-          onFileSelect(newPath);
-        }
-      } else {
-        const parentDir = node.path.substring(0, node.path.length - node.name.length - 1);
-        const newPath = parentDir + sep + finalName;
-        await window.electronAPI.renameFile(node.path, newPath);
-        onFileRename(node.path, newPath);
-        setFiles((prev) =>
-          prev.map((n) =>
-            n.path === node.path ? { ...n, name: finalName, path: newPath, isNewFile: false } : n,
-          ),
-        );
-      }
-      if (rootPath) await loadFolder(rootPath);
-    };
-
-    const handleExpand = async (dirPath: string) => {
-      startLoading(dirPath);
-      const children = await window.electronAPI.readDirectory(dirPath);
-      stopLoading(dirPath);
-      setFiles((prev) => updateChildren(prev, dirPath, children) as FileNodeState[]);
-    };
 
     return (
       <aside
@@ -131,12 +63,14 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
               key={node.path}
               node={node}
               onFileSelect={onFileSelect}
+              onNodeSelect={handleNodeSelect}
               onExpand={handleExpand}
               onStartRenaming={handleStartRenaming}
               onFinishRenaming={handleFinishRenaming}
               onCancelRenaming={handleCancelRenaming}
               loadingPaths={loadingPaths}
               onRefresh={() => rootPath && loadFolder(rootPath)}
+              selectedPath={selectedNode?.path}
             />
           ))}
         </div>
