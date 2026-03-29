@@ -87,6 +87,7 @@ export const FileTreeNode = ({ node, onRefresh, depth = 0 }: FileTreeNodeProps) 
   const sharedProps = {
     onContextMenu: (e: React.MouseEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       openContextMenu(buildOptions(), e.clientX, e.clientY);
     },
   };
@@ -114,7 +115,7 @@ export const FileTreeNode = ({ node, onRefresh, depth = 0 }: FileTreeNodeProps) 
           <button
             onClick={handleToggle}
             style={{ paddingLeft }}
-            className={`flex w-full items-center gap-1 rounded px-2 py-1
+            className={`flex min-w-full items-center gap-1 rounded px-2 py-1
              text-left text-sm hover:bg-base-content/10 hover:text-base-content
              ${isSelected ? "bg-base-content/15 text-base-content" : "text-base-content/55"}`}
             {...sharedProps}
@@ -152,7 +153,7 @@ export const FileTreeNode = ({ node, onRefresh, depth = 0 }: FileTreeNodeProps) 
             onFileSelect(node.path);
           }}
           style={{ paddingLeft: paddingLeft + 16 }}
-          className={`flex w-full items-center gap-1 rounded px-2 py-1
+          className={`flex min-w-full items-center gap-1 rounded px-2 py-1
            text-left text-sm hover:bg-base-content/10 hover:text-base-content
            ${isSelected ? "bg-base-content/15 text-base-content" : "text-base-content/80"}`}
           {...sharedProps}

@@ -32,7 +32,7 @@ export const RenameInput = ({ paddingLeft, defaultValue, onFinish, onCancel }: R
     <input
       autoFocus
       type="text"
-      className="w-full rounded bg-base-100 px-2 py-1 text-sm text-base-content ring-1 ring-primary outline-none"
+      className="w-full rounded border border-primary bg-base-100 px-2 py-1 text-sm text-base-content outline-none"
       style={{ paddingLeft }}
       defaultValue={stripExtension(defaultValue)}
       onBlur={handleBlur}

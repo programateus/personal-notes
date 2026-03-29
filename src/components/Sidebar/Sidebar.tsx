@@ -34,10 +34,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
 
     const handleSidebarContextMenu = (e: React.MouseEvent) => {
       e.preventDefault();
+      if (!rootPath) return;
+      const sep = rootPath.includes("\\") ? "\\" : "/";
       openContextMenu(
         [
-          { label: "Novo arquivo", icon: IconFileAdd, action: () => handleAddNewFile("file") },
-          { label: "Nova pasta", icon: IconFolderAdd, action: () => handleAddNewFile("directory") },
+          { label: "Novo arquivo", icon: IconFileAdd, action: () => addNewFileNode("file", rootPath + sep) },
+          { label: "Nova pasta", icon: IconFolderAdd, action: () => addNewFileNode("directory", rootPath + sep) },
         ],
         e.clientX,
         e.clientY,
@@ -90,7 +92,7 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
             selectedPath: selectedNode?.path,
           }}
         >
-          <div className="flex-1 overflow-y-auto py-1" onContextMenu={handleSidebarContextMenu}>
+          <div className="flex-1 overflow-auto py-1" onContextMenu={handleSidebarContextMenu}>
             {files.map((node) => (
               <FileTreeNode
                 key={node.path}
