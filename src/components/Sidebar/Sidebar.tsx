@@ -1,8 +1,11 @@
 import { forwardRef, useImperativeHandle } from "react";
 import { RiFileAddLine, RiFolderAddLine } from "react-icons/ri";
 import { useResizable } from "@/hooks/useResizable";
+import { useContextMenu } from "@/providers/ContextMenu/useContextMenu";
+import { IconFileAdd, IconFolderAdd } from "@/components/ContextMenu/ContextMenuIcons";
 
 import { FileTreeNode } from "./FileTreeNode";
+import { FileTreeContext } from "./FileTreeContext";
 import { useSidebarState } from "./useSidebarState";
 import type { SidebarProps, SidebarRef } from "./types";
 
@@ -14,10 +17,12 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
       rootPath,
       loadingPaths,
       selectedNode,
+      openPaths,
       loadFolder,
       addNewFileNode,
       handleNodeSelect,
       handleAddNewFile,
+      handleToggleFolder,
       handleStartRenaming,
       handleCancelRenaming,
       handleFinishRenaming,
@@ -25,6 +30,19 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
     } = useSidebarState(onFileSelect, onFileRename);
 
     const { width: sidebarWidth, handleResizeStart } = useResizable(240);
+    const { open: openContextMenu } = useContextMenu();
+
+    const handleSidebarContextMenu = (e: React.MouseEvent) => {
+      e.preventDefault();
+      openContextMenu(
+        [
+          { label: "Novo arquivo", icon: IconFileAdd, action: () => handleAddNewFile("file") },
+          { label: "Nova pasta", icon: IconFolderAdd, action: () => handleAddNewFile("directory") },
+        ],
+        e.clientX,
+        e.clientY,
+      );
+    };
 
     useImperativeHandle(ref, () => ({ loadFolder, addNewFileNode }));
 
@@ -57,23 +75,31 @@ export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-1">
-          {files.map((node) => (
-            <FileTreeNode
-              key={node.path}
-              node={node}
-              onFileSelect={onFileSelect}
-              onNodeSelect={handleNodeSelect}
-              onExpand={handleExpand}
-              onStartRenaming={handleStartRenaming}
-              onFinishRenaming={handleFinishRenaming}
-              onCancelRenaming={handleCancelRenaming}
-              loadingPaths={loadingPaths}
-              onRefresh={() => rootPath && loadFolder(rootPath)}
-              selectedPath={selectedNode?.path}
-            />
-          ))}
-        </div>
+        <FileTreeContext.Provider
+          value={{
+            onFileSelect,
+            onNodeSelect: handleNodeSelect,
+            onExpand: handleExpand,
+            onToggleFolder: handleToggleFolder,
+            onAddNew: addNewFileNode,
+            onStartRenaming: handleStartRenaming,
+            onFinishRenaming: handleFinishRenaming,
+            onCancelRenaming: handleCancelRenaming,
+            loadingPaths,
+            openPaths,
+            selectedPath: selectedNode?.path,
+          }}
+        >
+          <div className="flex-1 overflow-y-auto py-1" onContextMenu={handleSidebarContextMenu}>
+            {files.map((node) => (
+              <FileTreeNode
+                key={node.path}
+                node={node}
+                onRefresh={() => rootPath && loadFolder(rootPath)}
+              />
+            ))}
+          </div>
+        </FileTreeContext.Provider>
 
         <div
           className="absolute inset-y-0 right-0 w-1 cursor-col-resize

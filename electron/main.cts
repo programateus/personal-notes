@@ -2,8 +2,31 @@ import { app, BrowserWindow, ipcMain, dialog, Menu } from "electron";
 import path from "path";
 import { Worker } from "worker_threads";
 import fs from "fs/promises";
+import { watch as fsWatch } from "fs";
 
 let mainWindow: BrowserWindow | null = null;
+
+let fsWatcher: ReturnType<typeof fsWatch> | null = null;
+let fsWatchDebounce: ReturnType<typeof setTimeout> | null = null;
+
+ipcMain.handle("watch-directory", (_event, dirPath: string) => {
+  fsWatcher?.close();
+  fsWatcher = fsWatch(dirPath, { recursive: true }, () => {
+    if (fsWatchDebounce) clearTimeout(fsWatchDebounce);
+    fsWatchDebounce = setTimeout(() => {
+      BrowserWindow.getAllWindows().forEach((w) => w.webContents.send("fs-change"));
+    }, 200);
+  });
+});
+
+ipcMain.handle("unwatch-directory", () => {
+  fsWatcher?.close();
+  fsWatcher = null;
+  if (fsWatchDebounce) {
+    clearTimeout(fsWatchDebounce);
+    fsWatchDebounce = null;
+  }
+});
 
 ipcMain.handle("open-directory", async () => {
   const result = await dialog.showOpenDialog({ properties: ["openDirectory"] });

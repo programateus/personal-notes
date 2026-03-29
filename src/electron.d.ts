@@ -20,6 +20,9 @@ export interface ElectronAPI {
   renameFile: (oldPath: string, newPath: string) => Promise<void>;
   deleteFile: (filePath: string) => Promise<void>;
   onMenuAction: (channel: MenuChannel, callback: (...args: unknown[]) => void) => () => void;
+  watchDirectory: (dirPath: string) => Promise<void>;
+  unwatchDirectory: () => Promise<void>;
+  onFsChange: (callback: () => void) => () => void;
 }
 
 declare global {

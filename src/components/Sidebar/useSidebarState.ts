@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { FileType } from "@/electron";
 import { ensureExtension } from "@/config/fileConfig";
 import { updateChildren, insertNodeAt, removeNodeByPath } from "./updateChildren";
@@ -14,6 +14,13 @@ export function useSidebarState(
   const [loadingPaths, setLoadingPaths] = useState<Set<string>>(new Set());
   const [selectedNode, setSelectedNode] = useState<FileNodeState | null>(null);
 
+  const [openPaths, setOpenPaths] = useState<Set<string>>(new Set());
+
+  const openPathsRef = useRef<Set<string>>(new Set());
+  useEffect(() => { openPathsRef.current = openPaths; }, [openPaths]);
+
+  const suppressWatcherUntil = useRef(0);
+
   const startLoading = (p: string) => setLoadingPaths((prev) => new Set(prev).add(p));
   const stopLoading = (p: string) =>
     setLoadingPaths((prev) => {
@@ -27,9 +34,43 @@ export function useSidebarState(
     const nodes = await window.electronAPI.readDirectory(dirPath);
     stopLoading(dirPath);
     setRootName(dirPath.split(/[\\/]/).pop() ?? dirPath);
-    if (dirPath !== rootPath) setSelectedNode(null);
+    if (dirPath !== rootPath) {
+      setSelectedNode(null);
+      setOpenPaths(new Set());
+    }
     setRootPath(dirPath);
     setFiles(nodes as FileNodeState[]);
+  };
+
+  const reloadTree = async (rootDir: string) => {
+    const expanded = [...openPathsRef.current];
+    startLoading(rootDir);
+    const results = await Promise.allSettled([
+      window.electronAPI.readDirectory(rootDir),
+      ...expanded.map((p) => window.electronAPI.readDirectory(p)),
+    ]);
+    stopLoading(rootDir);
+    const rootResult = results[0];
+    if (rootResult.status === "rejected") return;
+    let tree = rootResult.value as FileNodeState[];
+    expanded.forEach((p, i) => {
+      const res = results[i + 1];
+      if (res.status === "fulfilled") {
+        tree = updateChildren(tree, p, res.value as FileNodeState[]);
+      } else {
+        setOpenPaths((prev) => { const next = new Set(prev); next.delete(p); return next; });
+      }
+    });
+    setFiles(tree);
+  };
+
+  const handleToggleFolder = (dirPath: string) => {
+    setOpenPaths((prev) => {
+      const next = new Set(prev);
+      if (next.has(dirPath)) next.delete(dirPath);
+      else next.add(dirPath);
+      return next;
+    });
   };
 
   const addNewFileNode = (type: FileType, path: string) => {
@@ -37,12 +78,28 @@ export function useSidebarState(
     const sep = path.includes("\\") ? "\\" : "/";
     const targetDir = path.endsWith(sep) ? path.slice(0, -1) : path;
     const newNode: FileNodeState = { name: "", path, type, isRenaming: true, isNewFile: true };
+    if (targetDir !== rootPath) {
+      setOpenPaths((prev) => new Set(prev).add(targetDir));
+    }
     setFiles((prev) =>
       targetDir === rootPath
         ? [newNode, ...prev]
         : insertNodeAt(prev, targetDir, newNode),
     );
   };
+
+  useEffect(() => {
+    if (!rootPath) return;
+    window.electronAPI.watchDirectory(rootPath);
+    const unsubscribe = window.electronAPI.onFsChange(() => {
+      if (Date.now() < suppressWatcherUntil.current) return;
+      reloadTree(rootPath);
+    });
+    return () => {
+      unsubscribe();
+      window.electronAPI.unwatchDirectory();
+    };
+  }, [rootPath]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleNodeSelect = (node: FileNodeState) => {
     setSelectedNode(node);
@@ -82,7 +139,7 @@ export function useSidebarState(
       handleCancelRenaming(node);
       return;
     }
-    const finalName = ensureExtension(newName);
+    const finalName = node.type === "file" ? ensureExtension(newName) : newName;
     const sep = node.path.includes("\\") ? "\\" : "/";
     if (node.isNewFile) {
       const newPath = node.path + finalName;
@@ -97,13 +154,11 @@ export function useSidebarState(
       const newPath = parentDir + sep + finalName;
       await window.electronAPI.renameFile(node.path, newPath);
       onFileRename(node.path, newPath);
-      setFiles((prev) =>
-        prev.map((n) =>
-          n.path === node.path ? { ...n, name: finalName, path: newPath, isNewFile: false } : n,
-        ),
-      );
     }
-    if (rootPath) await loadFolder(rootPath);
+    if (rootPath) {
+      suppressWatcherUntil.current = Date.now() + 500;
+      await reloadTree(rootPath);
+    }
   };
 
   const handleExpand = async (dirPath: string) => {
@@ -119,10 +174,12 @@ export function useSidebarState(
     rootPath,
     loadingPaths,
     selectedNode,
+    openPaths,
     loadFolder,
     addNewFileNode,
     handleNodeSelect,
     handleAddNewFile,
+    handleToggleFolder,
     handleStartRenaming,
     handleCancelRenaming,
     handleFinishRenaming,

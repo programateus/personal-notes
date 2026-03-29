@@ -17,4 +17,12 @@ contextBridge.exposeInMainWorld("electronAPI", {
     ipcRenderer.on(channel, wrapper);
     return () => ipcRenderer.off(channel, wrapper);
   },
+  watchDirectory: (dirPath: string): Promise<void> =>
+    ipcRenderer.invoke("watch-directory", dirPath),
+  unwatchDirectory: (): Promise<void> => ipcRenderer.invoke("unwatch-directory"),
+  onFsChange: (callback: () => void) => {
+    const handler = () => callback();
+    ipcRenderer.on("fs-change", handler);
+    return () => ipcRenderer.off("fs-change", handler);
+  },
 });
