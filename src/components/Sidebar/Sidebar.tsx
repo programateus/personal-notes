@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { forwardRef, useImperativeHandle, useState } from "react";
 import { useResizable } from "@/hooks/useResizable";
 import type { FileNode } from "@/electron";
 
@@ -10,7 +10,11 @@ interface SidebarProps {
   onFileSelect: (path: string) => void;
 }
 
-export function Sidebar({ onFileSelect }: SidebarProps) {
+export interface SidebarRef {
+  loadFolder: (path: string) => Promise<void>;
+}
+
+export const Sidebar = forwardRef<SidebarRef, SidebarProps>(({ onFileSelect }, ref) => {
   const [files, setFiles] = useState<FileNode[]>([]);
   const [rootName, setRootName] = useState<string | null>(null);
   const [rootPath, setRootPath] = useState<string | null>(null);
@@ -29,17 +33,21 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
     });
   }
 
-  async function handleOpenFolder() {
-    const dirPath = await window.electronAPI.openDirectory();
-    if (!dirPath) return;
-
+  async function loadFolder(dirPath: string) {
     startLoading(dirPath);
     const nodes = await window.electronAPI.readDirectory(dirPath);
     stopLoading(dirPath);
-
     setRootName(dirPath.split(/[\\/]/).pop() ?? dirPath);
     setRootPath(dirPath);
     setFiles(nodes);
+  }
+
+  useImperativeHandle(ref, () => ({ loadFolder }));
+
+  async function handleOpenFolder() {
+    const dirPath = await window.electronAPI.openDirectory();
+    if (!dirPath) return;
+    await loadFolder(dirPath);
   }
 
   async function handleExpand(dirPath: string) {
@@ -51,7 +59,7 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
 
   return (
     <aside
-      className="relative flex h-full min-w-40 shrink-0 flex-col border-r border-neutral/25 bg-base-200"
+      className={`relative flex h-full shrink-0 flex-col border-r border-neutral/25 bg-base-200${files.length === 0 ? " hidden" : " min-w-40"}`}
       style={{ width: sidebarWidth }}
     >
       <div className="flex items-center justify-between border-b border-neutral/25 px-3 py-2">
@@ -91,7 +99,7 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
               onFileSelect={onFileSelect}
               onExpand={handleExpand}
               loadingPaths={loadingPaths}
-              onRefresh={() => rootPath && handleExpand(rootPath)}
+              onRefresh={() => rootPath && loadFolder(rootPath)}
             />
           ))
         )}
@@ -112,4 +120,6 @@ export function Sidebar({ onFileSelect }: SidebarProps) {
       )}
     </aside>
   );
-}
+});
+
+Sidebar.displayName = "Sidebar";

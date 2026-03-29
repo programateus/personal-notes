@@ -7,6 +7,8 @@ export type FileNode = {
   children?: FileNode[];
 };
 
+type MenuChannel = "menu:open" | "menu:save" | "menu:close-tab";
+
 declare global {
   interface Window {
     electronAPI: {
@@ -16,6 +18,7 @@ declare global {
       writeFile: (filePath: string, content: string) => Promise<void>;
       renameFile: (oldPath: string, newPath: string) => Promise<void>;
       deleteFile: (filePath: string) => Promise<void>;
+      onMenuAction: (channel: MenuChannel, callback: (...args: unknown[]) => void) => () => void;
     };
   }
 }

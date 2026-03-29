@@ -45,5 +45,14 @@ export const useTabManager = () => {
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null;
 
-  return { tabs, activeTabId, activeTab, openTab, closeTab, updateContent, markSaved, setActiveTabId };
+  return {
+    tabs,
+    activeTabId,
+    activeTab,
+    openTab,
+    closeTab,
+    updateContent,
+    markSaved,
+    setActiveTabId,
+  };
 };

@@ -1,7 +1,9 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, Menu } from "electron";
 import path from "path";
 import { Worker } from "worker_threads";
 import fs from "fs/promises";
+
+let mainWindow: BrowserWindow | null = null;
 
 ipcMain.handle("open-directory", async () => {
   const result = await dialog.showOpenDialog({ properties: ["openDirectory"] });
@@ -14,13 +16,22 @@ ipcMain.handle("write-file", (_event, filePath: string, content: string) =>
   fs.writeFile(filePath, content, "utf-8"),
 );
 
+ipcMain.handle("open-file-or-directory", async () => {
+  const result = await dialog.showOpenDialog({
+    properties: ["openFile", "openDirectory"],
+    filters: [{ name: "Markdown", extensions: ["md"] }],
+  });
+  if (result.canceled || result.filePaths.length === 0) return null;
+  const selectedPath = result.filePaths[0];
+  const stat = await fs.stat(selectedPath);
+  return { path: selectedPath, isDirectory: stat.isDirectory() };
+});
+
 ipcMain.handle("rename-file", (_event, oldPath: string, newPath: string) =>
   fs.rename(oldPath, newPath),
 );
 
-ipcMain.handle("delete-file", (_event, filePath: string) =>
-  fs.rm(filePath, { recursive: true }),
-);
+ipcMain.handle("delete-file", (_event, filePath: string) => fs.rm(filePath, { recursive: true }));
 
 ipcMain.handle("read-directory", (_event, dirPath: string) => {
   return new Promise((resolve, reject) => {
@@ -35,12 +46,114 @@ ipcMain.handle("read-directory", (_event, dirPath: string) => {
   });
 });
 
+function buildMenu() {
+  return Menu.buildFromTemplate([
+    {
+      label: "Arquivo",
+      submenu: [
+        {
+          label: "Abrir arquivo...",
+          accelerator: "CmdOrCtrl+O",
+          click: async () => {
+            if (!mainWindow) return;
+            const result = await dialog.showOpenDialog(mainWindow, {
+              properties: ["openFile"],
+              filters: [{ name: "Markdown", extensions: ["md"] }],
+            });
+            if (result.canceled || result.filePaths.length === 0) return;
+            mainWindow.webContents.send("menu:open", {
+              path: result.filePaths[0],
+              isDirectory: false,
+            });
+          },
+        },
+        {
+          label: "Abrir pasta...",
+          accelerator: "CmdOrCtrl+Shift+O",
+          click: async () => {
+            if (!mainWindow) return;
+            const result = await dialog.showOpenDialog(mainWindow, {
+              properties: ["openDirectory"],
+            });
+            if (result.canceled || result.filePaths.length === 0) return;
+            mainWindow.webContents.send("menu:open", {
+              path: result.filePaths[0],
+              isDirectory: true,
+            });
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Salvar",
+          click: () => mainWindow?.webContents.send("menu:save"),
+        },
+        { type: "separator" },
+        {
+          label: "Fechar aba",
+          click: () => mainWindow?.webContents.send("menu:close-tab"),
+        },
+        { type: "separator" },
+        { role: "quit", label: "Sair" },
+      ],
+    },
+    {
+      label: "Editar",
+      submenu: [
+        { role: "undo", label: "Desfazer" },
+        { role: "redo", label: "Refazer" },
+        { type: "separator" },
+        { role: "cut", label: "Recortar" },
+        { role: "copy", label: "Copiar" },
+        { role: "paste", label: "Colar" },
+        { type: "separator" },
+        { role: "selectAll", label: "Selecionar tudo" },
+      ],
+    },
+    {
+      label: "Ajuda",
+      submenu: [
+        {
+          label: "Atalhos de teclado",
+          click: () => {
+            if (!mainWindow) return;
+            dialog.showMessageBox(mainWindow, {
+              title: "Atalhos de teclado",
+              type: "info",
+              message: "Atalhos de teclado",
+              detail:
+                "Ctrl+O              Abrir arquivo .md\n" +
+                "Ctrl+Shift+O        Abrir pasta\n" +
+                "Ctrl+S              Salvar\n" +
+                "Ctrl+W              Fechar aba\n" +
+                "Ctrl+Tab            Próxima aba\n" +
+                "Ctrl+Shift+Tab      Aba anterior",
+            });
+          },
+        },
+        { type: "separator" },
+        {
+          label: "Sobre Personal Notes",
+          click: () => {
+            if (!mainWindow) return;
+            dialog.showMessageBox(mainWindow, {
+              title: "Personal Notes",
+              type: "info",
+              message: "Personal Notes",
+              detail: "Editor de notas em Markdown",
+            });
+          },
+        },
+      ],
+    },
+  ]);
+}
+
 const isDev = !app.isPackaged;
 
 function createWindow(): void {
   const preloadPath = path.join(__dirname, "preload.cjs");
 
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     webPreferences: {
@@ -48,14 +161,15 @@ function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
     },
-    autoHideMenuBar: true,
   });
 
+  Menu.setApplicationMenu(buildMenu());
+
   if (isDev) {
-    win.loadURL("http://localhost:5173");
-    win.webContents.openDevTools();
+    mainWindow.loadURL("http://localhost:5173");
+    mainWindow.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, "../dist/index.html"));
+    mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
 }
 
