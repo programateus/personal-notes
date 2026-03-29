@@ -1,2 +1,2 @@
 export { Sidebar } from "./Sidebar";
-export type { SidebarRef } from "./Sidebar";
+export type { SidebarRef } from "./types";

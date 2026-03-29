@@ -1,9 +1,11 @@
 export {};
 
+export type FileType = "file" | "directory";
+
 export type FileNode = {
   name: string;
   path: string;
-  type: "file" | "directory";
+  type: FileType;
   children?: FileNode[];
 };
 
