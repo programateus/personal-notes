@@ -46,6 +46,10 @@
   --noise: 0;
 }
 
+@theme {
+  --font-ui: "Open Sans", Arial, Helvetica, sans-serif;
+}
+
 @utility input {
   @apply focus:outline-offset-0;
   @apply focus-within:outline-offset-0;
@@ -268,129 +272,6 @@
   z-index: 50;
 }
 
-.slash-menu {
-  background: var(--color-base-200);
-  border: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
-  border-radius: 8px;
-  padding: 6px;
-  width: 200px;
-  max-height: 320px;
-  overflow-y: auto;
-  box-shadow:
-    0px 4px 6px -1px color-mix(in oklch, var(--color-base-content) 10%, transparent),
-    0px 2px 4px -2px color-mix(in oklch, var(--color-base-content) 6%, transparent);
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 0.875rem;
-}
-
-.slash-menu-group + .slash-menu-group {
-  margin-top: 4px;
-  padding-top: 4px;
-  border-top: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent);
-}
-
-.slash-menu-group-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: color-mix(in oklch, var(--color-base-content) 45%, transparent);
-  padding: 2px 8px 4px;
-  margin: 0;
-}
-
-.slash-menu-group ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.slash-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  color: var(--color-base-content);
-  transition: background 0.1s;
-  user-select: none;
-}
-
-.slash-menu-item:hover,
-.slash-menu-item.active {
-  background: color-mix(in oklch, var(--color-primary) 15%, var(--color-base-200));
-}
-
-.slash-menu-item-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
-}
-
-.slash-menu-item.active .slash-menu-item-icon {
-  color: var(--color-primary);
-}
-
-.context-menu {
-  position: fixed;
-  z-index: 100;
-  background: var(--color-base-200);
-  border: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
-  border-radius: 8px;
-  padding: 6px;
-  min-width: 160px;
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 0.875rem;
-}
-
-.context-menu ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.context-menu-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  color: var(--color-base-content);
-  transition: background 0.1s;
-  user-select: none;
-}
-
-.context-menu-item:hover {
-  background: color-mix(in oklch, var(--color-primary) 15%, var(--color-base-200));
-}
-
-.context-menu-item.danger {
-  color: var(--color-error);
-}
-
-.context-menu-item.danger:hover {
-  background: color-mix(in oklch, var(--color-error) 15%, var(--color-base-200));
-}
-
-.context-menu-item-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-  color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
-}
-
-.context-menu-item.danger .context-menu-item-icon {
-  color: var(--color-error);
-}
 
 @keyframes loading-slide {
   0% {
