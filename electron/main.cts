@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog, Menu, session } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, Menu, session, shell } from "electron";
 import path from "path";
 import { Worker } from "worker_threads";
 import fs from "fs/promises";
@@ -188,6 +188,11 @@ function createWindow(): void {
       contextIsolation: true,
       nodeIntegration: false,
     },
+  });
+
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: "deny" };
   });
 
   Menu.setApplicationMenu(buildMenu());
