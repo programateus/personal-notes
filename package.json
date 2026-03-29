@@ -17,15 +17,25 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@milkdown/crepe": "^7.19.2",
-    "@milkdown/kit": "^7.19.2",
-    "@milkdown/react": "^7.19.2",
     "@tailwindcss/vite": "^4.2.2",
+    "@tanstack/react-hotkeys": "^0.8.3",
+    "@tiptap/extension-code-block-lowlight": "^3.21.0",
+    "@tiptap/extension-placeholder": "^3.21.0",
+    "@tiptap/extension-table": "^3.21.0",
+    "@tiptap/extension-task-item": "^3.21.0",
+    "@tiptap/extension-task-list": "^3.21.0",
+    "@tiptap/markdown": "^3.21.0",
+    "@tiptap/react": "^3.21.0",
+    "@tiptap/starter-kit": "^3.21.0",
+    "@tiptap/suggestion": "^3.21.0",
     "clsx": "^2.1.1",
+    "highlight.js": "^11.11.1",
+    "lowlight": "^3.3.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4.2.2",
+    "tippy.js": "^6.3.7",
     "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {

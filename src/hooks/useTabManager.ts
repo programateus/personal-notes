@@ -1,11 +1,11 @@
 import { useState } from "react";
 import type { Tab } from "@/types/tab";
 
-export function useTabManager() {
+export const useTabManager = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
   const [activeTabId, setActiveTabId] = useState<string | null>(null);
 
-  async function openTab(path: string) {
+  const openTab = async (path: string) => {
     const existing = tabs.find((t) => t.id === path);
     if (existing) {
       setActiveTabId(path);
@@ -17,9 +17,9 @@ export function useTabManager() {
 
     setTabs((prev) => [...prev, { id: path, path, title, content, isDirty: false }]);
     setActiveTabId(path);
-  }
+  };
 
-  function closeTab(id: string) {
+  const closeTab = (id: string) => {
     setTabs((prev) => {
       const idx = prev.findIndex((t) => t.id === id);
       const next = prev.filter((t) => t.id !== id);
@@ -31,15 +31,19 @@ export function useTabManager() {
 
       return next;
     });
-  }
+  };
 
-  function updateContent(id: string, markdown: string) {
+  const updateContent = (id: string, markdown: string) => {
     setTabs((prev) =>
       prev.map((t) => (t.id === id ? { ...t, content: markdown, isDirty: true } : t)),
     );
-  }
+  };
+
+  const markSaved = (id: string) => {
+    setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, isDirty: false } : t)));
+  };
 
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null;
 
-  return { tabs, activeTabId, activeTab, openTab, closeTab, updateContent, setActiveTabId };
-}
+  return { tabs, activeTabId, activeTab, openTab, closeTab, updateContent, markSaved, setActiveTabId };
+};

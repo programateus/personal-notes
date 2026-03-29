@@ -1,5 +1,19 @@
 {
   "permissions": {
-    "allow": ["Bash(npm install:*)"]
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npx tsc:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:github.com)",
+      "Bash(curl:*)",
+      "Bash(python3 -m json.tool)",
+      "Bash(find https://raw.githubusercontent.com/Milkdown/milkdown/main/packages/react/src -name *.ts)",
+      "Bash(node:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(npm prune:*)",
+      "Bash(grep -rE \"createTable|findParent|$ctx\" /c/Users/mateu/Documentos/estudos/personal-notes/node_modules/@milkdown/preset-gfm/lib/index.d.ts)",
+      "Bash(grep $ctx /c/Users/mateu/Documentos/estudos/personal-notes/node_modules/@milkdown/utils/lib/index.d.ts)",
+      "Bash(grep -r \"function $ctx\\\\|const $ctx\\\\|declare.*$ctx\" /c/Users/mateu/Documentos/estudos/personal-notes/node_modules/@milkdown/utils/lib/)"
+    ]
   }
 }

@@ -11,14 +11,8 @@ export const EditorPanel = ({ tabs, activeTabId, onContentChange }: EditorPanelP
   return (
     <div className="relative flex-1 overflow-hidden">
       {tabs.map((tab) => (
-        <div
-          key={tab.id}
-          className={tab.id === activeTabId ? "flex h-full w-full" : "hidden"}
-        >
-          <EditorWrapper
-            content={tab.content}
-            onChange={(md) => onContentChange(tab.id, md)}
-          />
+        <div key={tab.id} className={tab.id === activeTabId ? "flex h-full w-full" : "hidden"}>
+          <EditorWrapper content={tab.content} onChange={(md) => onContentChange(tab.id, md)} />
         </div>
       ))}
     </div>

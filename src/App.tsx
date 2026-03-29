@@ -2,9 +2,13 @@ import { Sidebar } from "./components/Sidebar";
 import { TabBar } from "./components/Tabs/TabBar";
 import { EditorPanel } from "./components/Editor/EditorPanel";
 import { useTabManager } from "./hooks/useTabManager";
+import { useEditorHotkeys } from "./hooks/useEditorHotkeys";
 
 function App() {
-  const { tabs, activeTabId, openTab, closeTab, updateContent, setActiveTabId } = useTabManager();
+  const { tabs, activeTabId, activeTab, openTab, closeTab, updateContent, markSaved, setActiveTabId } =
+    useTabManager();
+
+  useEditorHotkeys({ tabs, activeTabId, activeTab, setActiveTabId, closeTab, markSaved });
 
   return (
     <div className="flex h-screen bg-base-100 text-base-content">
