@@ -61,9 +61,6 @@
   @apply focus-within:outline-offset-0;
 }
 
-/* ══════════════════════════════════════════════════════
-   Tiptap — estilos de prosa usando variáveis DaisyUI
-   ══════════════════════════════════════════════════════ */
 .tiptap {
   width: 100%;
   min-height: 100%;
@@ -208,7 +205,6 @@
   border-radius: 0.5rem;
 }
 
-/* Task lists */
 .tiptap.ProseMirror ul[data-type="taskList"] {
   list-style: none;
   padding-left: 0;
@@ -225,7 +221,6 @@
   flex-shrink: 0;
 }
 
-/* Tables */
 .tiptap.ProseMirror table {
   width: 100%;
   border-collapse: collapse;
@@ -244,19 +239,16 @@
   font-weight: 600;
 }
 
-/* Strikethrough */
 .tiptap.ProseMirror s,
 .tiptap.ProseMirror del {
   text-decoration: line-through;
   color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
 }
 
-/* Selection */
 .tiptap.ProseMirror ::selection {
   background: color-mix(in oklch, var(--color-primary) 25%, transparent);
 }
 
-/* Gapcursor */
 .tiptap.ProseMirror .ProseMirror-gapcursor {
   display: none;
   pointer-events: none;
@@ -272,9 +264,6 @@
   border-top: 1px solid var(--color-base-content);
 }
 
-/* ══════════════════════════════════════════════════════
-   Slash Menu
-   ══════════════════════════════════════════════════════ */
 [data-tippy-root] {
   z-index: 50;
 }
@@ -347,100 +336,6 @@
   color: var(--color-primary);
 }
 
-/* ══════════════════════════════════════════════════════
-   Menu Bar
-   ══════════════════════════════════════════════════════ */
-.menu-bar {
-  display: flex;
-  align-items: center;
-  height: 28px;
-  flex-shrink: 0;
-  background: var(--color-base-300);
-  border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 10%, transparent);
-  padding: 0 4px;
-  font-family: "Open Sans", Arial, Helvetica, sans-serif;
-  font-size: 0.8125rem;
-  user-select: none;
-}
-
-.menu-bar-item-container {
-  position: relative;
-}
-
-.menu-bar-item {
-  padding: 3px 8px;
-  border-radius: 4px;
-  color: var(--color-base-content);
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background 0.1s;
-  font-size: 0.8125rem;
-  font-family: inherit;
-}
-
-.menu-bar-item:hover,
-.menu-bar-item.active {
-  background: color-mix(in oklch, var(--color-base-content) 12%, transparent);
-}
-
-.menu-bar-dropdown {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 0;
-  z-index: 200;
-  background: var(--color-base-200);
-  border: 1px solid color-mix(in oklch, var(--color-base-content) 15%, transparent);
-  border-radius: 8px;
-  padding: 6px;
-  min-width: 220px;
-  box-shadow:
-    0px 4px 6px -1px color-mix(in oklch, var(--color-base-content) 10%, transparent),
-    0px 2px 4px -2px color-mix(in oklch, var(--color-base-content) 6%, transparent);
-}
-
-.menu-bar-dropdown-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  width: 100%;
-  padding: 6px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  color: var(--color-base-content);
-  background: transparent;
-  border: none;
-  font-size: 0.875rem;
-  font-family: inherit;
-  text-align: left;
-  transition: background 0.1s;
-}
-
-.menu-bar-dropdown-item:hover:not(:disabled) {
-  background: color-mix(in oklch, var(--color-primary) 15%, var(--color-base-200));
-}
-
-.menu-bar-dropdown-item:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.menu-bar-dropdown-shortcut {
-  color: color-mix(in oklch, var(--color-base-content) 45%, transparent);
-  font-size: 0.75rem;
-  flex-shrink: 0;
-}
-
-.menu-bar-dropdown-separator {
-  height: 1px;
-  background: color-mix(in oklch, var(--color-base-content) 10%, transparent);
-  margin: 4px 2px;
-}
-
-/* ══════════════════════════════════════════════════════
-   Context Menu
-   ══════════════════════════════════════════════════════ */
 .context-menu {
   position: fixed;
   z-index: 100;
