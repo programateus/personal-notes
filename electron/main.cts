@@ -46,6 +46,10 @@ ipcMain.handle("read-directory", (_event, dirPath: string) => {
   });
 });
 
+ipcMain.handle("create-directory", (_event, dirPath: string) =>
+  fs.mkdir(dirPath, { recursive: true }),
+);
+
 function buildMenu() {
   return Menu.buildFromTemplate([
     {

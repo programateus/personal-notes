@@ -1,7 +1,13 @@
 import { useRef, useState } from "react";
 import { useContextMenu } from "@/providers/ContextMenu/useContextMenu";
 import type { ContextMenuOption } from "@/providers/ContextMenu/types";
-import { IconCopy, IconCut, IconRename, IconDelete } from "@/components/ContextMenu/ContextMenuIcons";
+import {
+  IconCopy,
+  IconCut,
+  IconRename,
+  IconDelete,
+} from "@/components/ContextMenu/ContextMenuIcons";
+import { stripExtension } from "@/config/fileConfig";
 import type { FileNodeState } from "./types";
 
 interface FileTreeNodeProps {
@@ -84,22 +90,13 @@ export const FileTreeNode = ({
     <input
       autoFocus
       type="text"
-      className="w-full rounded bg-base-100 px-2 py-1 text-sm text-base-content outline-none ring-1 ring-primary"
+      className="w-full rounded bg-base-100 px-2 py-1 text-sm text-base-content ring-1 ring-primary outline-none"
       style={{ paddingLeft: indentLeft }}
-      defaultValue={node.name}
+      defaultValue={stripExtension(node.name)}
       onBlur={handleBlur}
       onKeyDown={handleKeyDown}
     />
   );
-
-  const childProps = {
-    onFileSelect,
-    onExpand,
-    onStartRenaming,
-    onFinishRenaming,
-    onCancelRenaming,
-    loadingPaths,
-  };
 
   if (node.type === "directory") {
     const handleToggle = () => {
@@ -124,10 +121,8 @@ export const FileTreeNode = ({
              text-left text-sm text-base-content/55
              hover:bg-base-content/10 hover:text-base-content"
           >
-            <span className="w-3 text-center text-xs">
-              {isLoading ? "·" : isOpen ? "▾" : "▸"}
-            </span>
-            <span className="truncate">{node.name}</span>
+            <span className="w-3 text-center text-xs">{isLoading ? "·" : isOpen ? "▾" : "▸"}</span>
+            <span className="truncate">{stripExtension(node.name)}</span>
           </button>
         )}
         {isOpen &&
@@ -135,7 +130,12 @@ export const FileTreeNode = ({
             <FileTreeNode
               key={child.path}
               node={child as FileNodeState}
-              {...childProps}
+              onFileSelect={onFileSelect}
+              onExpand={onExpand}
+              onStartRenaming={onStartRenaming}
+              onFinishRenaming={onFinishRenaming}
+              onCancelRenaming={onCancelRenaming}
+              loadingPaths={loadingPaths}
               onRefresh={() => onExpand(node.path)}
               depth={depth + 1}
             />
@@ -160,7 +160,7 @@ export const FileTreeNode = ({
            text-left text-sm text-base-content/80
            hover:bg-base-content/10 hover:text-base-content"
         >
-          <span className="truncate">{node.name}</span>
+          <span className="truncate">{stripExtension(node.name)}</span>
         </button>
       )}
     </div>

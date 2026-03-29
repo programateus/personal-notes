@@ -31,7 +31,7 @@ export const Editor = ({ defaultValue, onChange }: EditorProps) => {
         codeBlock: false,
       }),
       Markdown,
-      Placeholder.configure({ placeholder: "Please input here...", showOnlyCurrent: true }),
+      Placeholder.configure({ placeholder: "Escreva, digite / para abrir o menu de atalhos", showOnlyCurrent: true }),
       TaskList,
       TaskItem.configure({ nested: true }),
       Table.configure({ resizable: false }),

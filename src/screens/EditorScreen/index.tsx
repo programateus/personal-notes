@@ -15,6 +15,7 @@ export const EditorScreen = () => {
     closeTab,
     updateContent,
     markSaved,
+    renameTab,
     setActiveTabId,
   } = useTabManager();
 
@@ -57,7 +58,7 @@ export const EditorScreen = () => {
 
   return (
     <div className="flex h-screen bg-base-100 text-base-content">
-      <Sidebar ref={sidebarRef} onFileSelect={openTab} />
+      <Sidebar ref={sidebarRef} onFileSelect={openTab} onFileRename={renameTab} />
       <main className="flex flex-1 flex-col overflow-hidden">
         {tabs.length > 0 ? (
           <>

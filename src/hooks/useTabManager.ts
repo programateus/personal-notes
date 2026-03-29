@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Tab } from "@/types/tab";
+import { stripExtension } from "@/config/fileConfig";
 
 export const useTabManager = () => {
   const [tabs, setTabs] = useState<Tab[]>([]);
@@ -13,7 +14,7 @@ export const useTabManager = () => {
     }
 
     const content = await window.electronAPI.readFile(path);
-    const title = path.split(/[\\/]/).pop() ?? path;
+    const title = stripExtension(path.split(/[\\/]/).pop() ?? path);
 
     setTabs((prev) => [...prev, { id: path, path, title, content, isDirty: false }]);
     setActiveTabId(path);
@@ -43,6 +44,16 @@ export const useTabManager = () => {
     setTabs((prev) => prev.map((t) => (t.id === id ? { ...t, isDirty: false } : t)));
   };
 
+  const renameTab = (oldPath: string, newPath: string) => {
+    const newTitle = stripExtension(newPath.split(/[\\/]/).pop() ?? newPath);
+    setTabs((prev) =>
+      prev.map((t) =>
+        t.id === oldPath ? { ...t, id: newPath, path: newPath, title: newTitle } : t,
+      ),
+    );
+    setActiveTabId((current) => (current === oldPath ? newPath : current));
+  };
+
   const activeTab = tabs.find((t) => t.id === activeTabId) ?? null;
 
   return {
@@ -53,6 +64,7 @@ export const useTabManager = () => {
     closeTab,
     updateContent,
     markSaved,
+    renameTab,
     setActiveTabId,
   };
 };
