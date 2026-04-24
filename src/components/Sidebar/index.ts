@@ -1,2 +1,3 @@
 export { Sidebar } from "./Sidebar";
-export type { SidebarRef } from "./types";
+export { useSidebarController } from "./useSidebarController";
+export type { SidebarActions, SidebarController, SidebarState } from "./types";

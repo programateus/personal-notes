@@ -12,6 +12,7 @@ import { stripExtension } from "@/config/fileConfig";
 import type { FileNodeState } from "./types";
 import { RenameInput } from "./RenameInput";
 import { useFileTree } from "./FileTreeContext";
+import { joinDirectoryPath } from "./pathUtils";
 
 interface FileTreeNodeProps {
   node: FileNodeState;
@@ -40,19 +41,18 @@ export const FileTreeNode = ({ node, onRefresh, depth = 0 }: FileTreeNodeProps) 
   const isLoading = loadingPaths.has(node.path);
 
   const buildOptions = (): ContextMenuOption[] => {
-    const sep = node.path.includes("\\") ? "\\" : "/";
     return [
       ...(node.type === "directory"
         ? [
             {
               label: "Novo arquivo",
               icon: IconFileAdd,
-              action: () => onAddNew("file", node.path + sep),
+              action: () => onAddNew("file", joinDirectoryPath(node.path)),
             },
             {
               label: "Nova pasta",
               icon: IconFolderAdd,
-              action: () => onAddNew("directory", node.path + sep),
+              action: () => onAddNew("directory", joinDirectoryPath(node.path)),
             },
           ]
         : []),

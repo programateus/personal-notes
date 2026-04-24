@@ -1,12 +1,11 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { EditorPanel } from "@/components/Editor/EditorPanel";
-import { Sidebar, type SidebarRef } from "@/components/Sidebar";
+import { Sidebar, useSidebarController } from "@/components/Sidebar";
 import { TabBar } from "@/components/Tabs/TabBar";
 import { useEditorHotkeys } from "@/hooks/useEditorHotkeys";
 import { useTabManager } from "@/hooks/useTabManager";
 
 export const EditorScreen = () => {
-  const sidebarRef = useRef<SidebarRef>(null);
   const {
     tabs,
     activeTabId,
@@ -18,6 +17,7 @@ export const EditorScreen = () => {
     renameTab,
     setActiveTabId,
   } = useTabManager();
+  const sidebar = useSidebarController({ onFileSelect: openTab, onFileRename: renameTab });
 
   useEditorHotkeys({ tabs, activeTabId, activeTab, setActiveTabId, closeTab, markSaved });
 
@@ -25,7 +25,7 @@ export const EditorScreen = () => {
     const handleMenuOpen = (data: unknown) => {
       const { path, isDirectory } = data as { path: string; isDirectory: boolean };
       if (isDirectory) {
-        sidebarRef.current?.loadFolder(path);
+        sidebar.actions.loadFolder(path);
       } else {
         openTab(path);
       }
@@ -54,11 +54,11 @@ export const EditorScreen = () => {
       unregisterSave();
       unregisterCloseTab();
     };
-  }, [activeTab, activeTabId, closeTab, markSaved, openTab]);
+  }, [activeTab, activeTabId, closeTab, markSaved, openTab, sidebar.actions]);
 
   return (
     <div className="flex h-screen bg-base-100 text-base-content">
-      <Sidebar ref={sidebarRef} onFileSelect={openTab} onFileRename={renameTab} />
+      <Sidebar controller={sidebar} />
       <main className="flex flex-1 flex-col overflow-hidden">
         {tabs.length > 0 ? (
           <>

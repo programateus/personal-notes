@@ -1,124 +1,34 @@
-import { forwardRef, useImperativeHandle } from "react";
-import { RiFileAddLine, RiFolderAddLine } from "react-icons/ri";
 import { useResizable } from "@/hooks/useResizable";
-import { useContextMenu } from "@/providers/ContextMenu/useContextMenu";
-import { IconFileAdd, IconFolderAdd } from "@/components/ContextMenu/ContextMenuIcons";
+import { SidebarFileTree } from "./SidebarFileTree";
+import { SidebarHeader } from "./SidebarHeader";
+import type { SidebarProps } from "./types";
 
-import { FileTreeNode } from "./FileTreeNode";
-import { FileTreeContext } from "./FileTreeContext";
-import { useSidebarState } from "./useSidebarState";
-import type { SidebarProps, SidebarRef } from "./types";
+export function Sidebar({ controller }: SidebarProps) {
+  const { width: sidebarWidth, handleResizeStart } = useResizable(240);
+  const { state, actions } = controller;
+  const { files, rootName, loadingPaths } = state;
 
-export const Sidebar = forwardRef<SidebarRef, SidebarProps>(
-  ({ onFileSelect, onFileRename }, ref) => {
-    const {
-      files,
-      rootName,
-      rootPath,
-      loadingPaths,
-      selectedNode,
-      openPaths,
-      loadFolder,
-      addNewFileNode,
-      handleNodeSelect,
-      handleAddNewFile,
-      handleToggleFolder,
-      handleStartRenaming,
-      handleCancelRenaming,
-      handleFinishRenaming,
-      handleExpand,
-    } = useSidebarState(onFileSelect, onFileRename);
+  return (
+    <aside
+      className={`relative flex h-full shrink-0 flex-col border-r border-neutral/25 bg-base-200${files.length === 0 ? " hidden" : " min-w-40"}`}
+      style={{ width: sidebarWidth }}
+    >
+      <SidebarHeader rootName={rootName} onAddNew={actions.addNewFileFromSelection} />
+      <SidebarFileTree controller={controller} />
 
-    const { width: sidebarWidth, handleResizeStart } = useResizable(240);
-    const { open: openContextMenu } = useContextMenu();
+      <div
+        className="absolute inset-y-0 right-0 w-1 cursor-col-resize
+           transition-colors duration-150 hover:bg-primary/40"
+        onMouseDown={handleResizeStart}
+      />
 
-    const handleSidebarContextMenu = (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (!rootPath) return;
-      const sep = rootPath.includes("\\") ? "\\" : "/";
-      openContextMenu(
-        [
-          { label: "Novo arquivo", icon: IconFileAdd, action: () => addNewFileNode("file", rootPath + sep) },
-          { label: "Nova pasta", icon: IconFolderAdd, action: () => addNewFileNode("directory", rootPath + sep) },
-        ],
-        e.clientX,
-        e.clientY,
-      );
-    };
-
-    useImperativeHandle(ref, () => ({ loadFolder, addNewFileNode }));
-
-    return (
-      <aside
-        className={`relative flex h-full shrink-0 flex-col border-r border-neutral/25 bg-base-200${files.length === 0 ? " hidden" : " min-w-40"}`}
-        style={{ width: sidebarWidth }}
-      >
-        <div className="flex items-center border-b border-neutral/25 px-3 py-2">
-          <span className="text-xs font-semibold tracking-wider text-base-content/55 uppercase">
-            {rootName ?? "Notas"}
-          </span>
-          <div className="ml-auto flex gap-1">
-            <button
-              onClick={() => handleAddNewFile("file")}
-              title="Novo arquivo"
-              className="cursor-pointer rounded p-1 text-base-content/55
-             hover:bg-base-content/10 hover:text-base-content"
-            >
-              <RiFileAddLine />
-            </button>
-            <button
-              onClick={() => handleAddNewFile("directory")}
-              title="Nova pasta"
-              className="cursor-pointer rounded p-1 text-base-content/55
-             hover:bg-base-content/10 hover:text-base-content"
-            >
-              <RiFolderAddLine />
-            </button>
+      {loadingPaths.size > 0 && (
+        <div className="border-t border-base-300 px-3 py-2">
+          <div className="relative h-0.5 overflow-hidden rounded-full bg-neutral">
+            <div className="loading-bar absolute h-full w-2/5 rounded-full bg-primary" />
           </div>
         </div>
-
-        <FileTreeContext.Provider
-          value={{
-            onFileSelect,
-            onNodeSelect: handleNodeSelect,
-            onExpand: handleExpand,
-            onToggleFolder: handleToggleFolder,
-            onAddNew: addNewFileNode,
-            onStartRenaming: handleStartRenaming,
-            onFinishRenaming: handleFinishRenaming,
-            onCancelRenaming: handleCancelRenaming,
-            loadingPaths,
-            openPaths,
-            selectedPath: selectedNode?.path,
-          }}
-        >
-          <div className="flex-1 overflow-auto py-1" onContextMenu={handleSidebarContextMenu}>
-            {files.map((node) => (
-              <FileTreeNode
-                key={node.path}
-                node={node}
-                onRefresh={() => rootPath && loadFolder(rootPath)}
-              />
-            ))}
-          </div>
-        </FileTreeContext.Provider>
-
-        <div
-          className="absolute inset-y-0 right-0 w-1 cursor-col-resize
-           transition-colors duration-150 hover:bg-primary/40"
-          onMouseDown={handleResizeStart}
-        />
-
-        {loadingPaths.size > 0 && (
-          <div className="border-t border-base-300 px-3 py-2">
-            <div className="relative h-0.5 overflow-hidden rounded-full bg-neutral">
-              <div className="loading-bar absolute h-full w-2/5 rounded-full bg-primary" />
-            </div>
-          </div>
-        )}
-      </aside>
-    );
-  },
-);
-
-Sidebar.displayName = "Sidebar";
+      )}
+    </aside>
+  );
+}

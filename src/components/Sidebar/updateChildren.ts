@@ -36,3 +36,17 @@ export function removeNodeByPath(nodes: FileNodeState[], targetPath: string): Fi
       n.children ? { ...n, children: removeNodeByPath(n.children, targetPath) } : n,
     );
 }
+
+export function updateNodeByPath(
+  nodes: FileNodeState[],
+  targetPath: string,
+  updateNode: (node: FileNodeState) => FileNodeState,
+): FileNodeState[] {
+  return nodes.map((node) => {
+    if (node.path === targetPath) return updateNode(node);
+    if (node.children) {
+      return { ...node, children: updateNodeByPath(node.children, targetPath, updateNode) };
+    }
+    return node;
+  });
+}
